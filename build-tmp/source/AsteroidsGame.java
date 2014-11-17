@@ -16,6 +16,8 @@ public class AsteroidsGame extends PApplet {
 
 SpaceShip aeneas; 
 //Sidus spes;
+Asteroid monitus;
+Asteroid [] saxa;
 Sidus [] ordo;
 public void setup() 
 {
@@ -25,11 +27,16 @@ public void setup()
   aeneas = new SpaceShip();
   //spes = new Sidus();
   ordo = new Sidus[100];
+  saxa = new Asteroid[5];
+  monitus = new Asteroid();
   for(int i = 0; i<ordo.length;i++)
   {
     ordo[i] = new Sidus(); 
   }
-
+  for(int i = 0; i<saxa.length;i++)
+  {
+    saxa[i] = new Asteroid();
+  }
 }
 public void draw() 
 {
@@ -37,16 +44,23 @@ public void draw()
   aeneas.show();
   aeneas.move();
   //spes.show();
+  monitus.show();
+  monitus.move();
   for(int i = 0; i<ordo.length;i++)
   {
     ordo[i].show();
+  }
+  for(int i = 0; i<saxa.length;i++)
+  {
+    saxa[i].show();
+    saxa[i].move();
   }
 }
 public void keyPressed()
   {
     if (key == CODED)
     {
-     if (keyCode == UP)
+     if (keyCode == UP )
      {
       aeneas.setPointDirection(270);
       double t = .5f;
@@ -63,6 +77,7 @@ public void keyPressed()
       aeneas.setPointDirection(180);
       double t = .5f;
       aeneas.accelerate(t);
+      aeneas.setDirectionX(-20);
     }
     if (keyCode == RIGHT)
     {
@@ -88,6 +103,78 @@ public void keyPressed()
     }
 
   }
+ class Asteroid extends Floater 
+ {
+    private int deg, size;
+    private int myRot;
+    Asteroid()
+    {
+      corners = 10;
+      //deg = (360/10)*((PI)/180);
+      size = 20;
+      xCorners = new int[corners];
+      yCorners = new int[corners];
+
+      for(int i =0; i<corners;i++)
+      {
+        xCorners[i] = (int)(Math.random()*101-50);
+        yCorners[i] = (int)(Math.random()*101-50);
+      }
+
+      myColor = color(200,200,200);
+      myCenterX = (int)(Math.random()*1000+1);
+      myCenterY = (int)(Math.random()*1000+1);
+      myDirectionX = (int)(Math.random()*10 +1);
+      if((Math.random())<.5f)
+      {
+        myDirectionX = myDirectionX*-1;
+      }
+      myDirectionY = (int)(Math.random()*10+1);
+      if(Math.random()> .5f)
+      {
+        myDirectionY = myDirectionY*-1;
+      }
+      myPointDirection = -40;
+
+      myRot = (int)(Math.random()*8-4); 
+     
+    }
+    public void setX(double x){myCenterX = x;}
+    public double getX(){return myCenterX;}
+    public void setY(double y){myCenterY = y;}
+    public double getY(){return myCenterY;}
+    public void setDirectionX(double x){myDirectionX = x;}
+    public double getDirectionX(){return myDirectionX;}
+    public void setDirectionY(double y){myDirectionY = y;}
+    public double getDirectionY(){return myDirectionY;}
+    public void setPointDirection(int degrees){myPointDirection =degrees;}   
+    public double getPointDirection(){return myPointDirection;}
+   public void move ()   //move the floater in the current direction of travel
+  {      
+    rotate(myRot);
+
+    super.move();
+  }   
+  public void show ()  //Draws the floater at the current position  
+  {             
+    
+    fill(myColor);   
+    stroke(myColor);    
+    //convert degrees to radians for sin and cos         
+    double dRadians = myPointDirection*(Math.PI/180);                 
+    int xRotatedTranslated, yRotatedTranslated;    
+    beginShape();
+
+    for(int nI = 0; nI < corners; nI++)    
+    {     
+      //rotate and translate the coordinates of the floater using current direction 
+      xRotatedTranslated = (int)((xCorners[nI]* Math.cos(dRadians)) - (yCorners[nI] * Math.sin(dRadians))+myCenterX);     
+      yRotatedTranslated = (int)((xCorners[nI]* Math.sin(dRadians)) + (yCorners[nI] * Math.cos(dRadians))+myCenterY);      
+      vertex(xRotatedTranslated,yRotatedTranslated);    
+    }   
+    endShape(CLOSE);  
+  }   
+ }
 class Sidus
 {
   private int x,y,l,w;
@@ -103,14 +190,18 @@ class Sidus
     stroke(200);
     fill(200);
     ellipse(x,y,w,l);
+
   }
+  
 }
 class SpaceShip extends Floater 
 {   
     SpaceShip()
     {
+      
+
       //myColor = color(222,24,100);
-      corners  = 3;
+      corners  = 5;
       xCorners = new int[corners];
       yCorners = new int[corners];
 
@@ -118,9 +209,13 @@ class SpaceShip extends Floater
       yCorners[0] = 0;
       xCorners[1] = -8;
       yCorners[1] = -8;
-      yCorners[2] = 8;
-      xCorners[2] = -8;
-  
+      xCorners[2] = -4;
+      yCorners[2] = -4;
+      xCorners[3] = -4;
+      yCorners[3] = 4;
+      xCorners[4] = -8;
+      yCorners[4] = 8;
+
       myColor = color(23,200,9);
       myCenterX = 500;
       myCenterY = 400;
@@ -143,6 +238,7 @@ class SpaceShip extends Floater
 }
 abstract class Floater //Do NOT modify the Floater class! Make changes in the SpaceShip class 
 {   
+
   protected int corners;  //the number of corners, a triangular floater has 3   
   protected int[] xCorners;   
   protected int[] yCorners;   
