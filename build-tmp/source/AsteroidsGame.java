@@ -14,135 +14,264 @@ import java.io.IOException;
 
 public class AsteroidsGame extends PApplet {
 
-SpaceShip aeneas; 
-//Sidus spes;
-Asteroid monitus;
-Asteroid [] saxa;
+SpaceShip aeneas;
+Sidus spes;
+//Bullet telum;
+ArrayList <Asteroid> saxa;
+ArrayList <Bullet> artillery; 
 Sidus [] ordo;
+boolean up, down, left, right;
 public void setup() 
 {
-  
+  up = false;
+  down = false;
+  left= false;
+  right = false;
   size(1000,800);
   background(0);
   aeneas = new SpaceShip();
-  //spes = new Sidus();
+  //telum = new Bullet(aeneas);
+  spes = new Sidus();
   ordo = new Sidus[100];
-  saxa = new Asteroid[5];
-  monitus = new Asteroid();
+
   for(int i = 0; i<ordo.length;i++)
   {
-    ordo[i] = new Sidus(); 
+    ordo[i] = new Sidus();
   }
-  for(int i = 0; i<saxa.length;i++)
-  {
-    saxa[i] = new Asteroid();
-  }
-}
+  
+  artillery = new ArrayList <Bullet>();
+  
+   saxa = new ArrayList <Asteroid>();
+   for(int j = 0; j<10; j++)
+   {
+     saxa.add(new Asteroid());
+   }
+ }
 public void draw() 
 {
   background(0);
   aeneas.show();
   aeneas.move();
-  //spes.show();
-  monitus.show();
-  monitus.move();
+  spes.show();
+  //telum.show();
+  //telum.move();
   for(int i = 0; i<ordo.length;i++)
+   {
+     ordo[i].show();
+   }
+   
+   for(int i  = 0; i<artillery.size();i++)
+   {
+     artillery.get(i).show();
+     artillery.get(i).move();
+     if (artillery.get(i).getEnd() == true)
+     {
+      artillery.remove(i);
+     }
+   }
+  for(int i = 0;i<saxa.size();i++)
   {
-    ordo[i].show();
+      saxa.get(i).show();
+      saxa.get(i).move();
+      for(int j= 0;j< artillery.size();j++)
+      {
+        float xx = dist(saxa.get(i).getX(),saxa.get(i).getY(),artillery.get(j).getX(),artillery.get(j).getY());
+
+        float nn = 5*(saxa.get(i).getSize());
+        if(xx<= nn)
+        {
+          saxa.remove(i);
+          artillery.remove(j);
+          break;
+        }
+      }
+
+   if (up ==true)
+   {
+      double t = .05f;
+    aeneas.accelerate(t);
+   }  
+    if (down ==true)
+   {
+      double t = .05f;
+    aeneas.accelerate(t);
+   }  
+   if(left ==true)
+   {
+      aeneas.rotate(-1);
+   }
+   System.out.println(right);
+   if (right == true)
+   {
+      aeneas.rotate(1);
+   }
   }
-  for(int i = 0; i<saxa.length;i++)
-  {
-    saxa[i].show();
-    saxa[i].move();
-  }
+
 }
 public void keyPressed()
+{
+  if (key == CODED)
   {
-    if (key == CODED)
-    {
-     if (keyCode == UP )
-     {
-      aeneas.setPointDirection(270);
-      double t = .5f;
-      aeneas.accelerate(t);
-    }
-    if (keyCode == DOWN)
-    {
-      aeneas.setPointDirection(90);
-      double t = .5f;
-      aeneas.accelerate(t);
-    }
-    if (keyCode == LEFT)
-    {
-      aeneas.setPointDirection(180);
-      double t = .5f;
-      aeneas.accelerate(t);
-      aeneas.setDirectionX(-20);
-    }
-    if (keyCode == RIGHT)
-    {
-      aeneas.setPointDirection(0);
-      double t = .5f;
-      aeneas.accelerate(t);
-    }
-   }
-    if (key == 'd')
-    {
-      aeneas.rotate(5);
-    }
-    if(key == 's')
-    {
-      aeneas.rotate(-5);
-    }
-    if (key == 't')
-    {
-      aeneas.setX((int)(Math.random()*980+10));
-      aeneas.setY((int)(Math.random()*780+10));
-      aeneas.setDirectionX((int)(Math.random()*25-12));
-      aeneas.setDirectionY((int)(Math.random()*25-12));
-    }
+   if (keyCode == UP )
+   {
 
+    up =true;
   }
+  if (keyCode == DOWN)
+  {
+
+    down = true;
+  }
+  if (keyCode == LEFT)
+  {
+    left = true;
+  }
+  if (keyCode == RIGHT)
+  {
+    right  = true;
+  }
+}
+
+if(key == ' ')
+{
+ artillery.add(new Bullet(aeneas)); 
+}
+if (key == 't')
+{
+  aeneas.setX((int)(Math.random()*980+10));
+  aeneas.setY((int)(Math.random()*780+10));
+  aeneas.setDirectionX((int)(Math.random()*25-12));
+  aeneas.setDirectionY((int)(Math.random()*25-12));
+}
+
+}
+public void keyReleased()
+{
+  if (key == CODED)
+  {
+   if (keyCode == UP )
+   {
+
+    up =false;
+   }
+   if (keyCode == DOWN)
+   {
+
+     down = false;
+   }
+    if (keyCode == LEFT)
+   {
+    left = false;
+   }
+   if (keyCode == RIGHT)
+   {
+     right  = false;
+   }
+ }
+}
+ class Bullet extends Floater
+ {
+  boolean end;
+  double dRadians;
+    Bullet(SpaceShip one)
+    {
+      myCenterX = one.getX();
+      myCenterY = one.getY();
+      myPointDirection = one.getPointDirection();
+      dRadians = myPointDirection*((Math.PI)/(180));
+      myDirectionX = 5*Math.cos(dRadians)+ one.getDirectionX();
+      myDirectionY = 5*Math.sin(dRadians)+ one.getDirectionY();
+      myColor = color(200,0,0);
+      end = false;
+    }
+    public void show()
+    {
+      fill(200,0,0);
+      noStroke();
+        ellipse((float)myCenterX,(float)myCenterY,8,8);
+    }
+    public void setX(double x){myCenterX = x;}
+    public int getX(){return (int)myCenterX;}
+    public void setY(double y){myCenterY = y;}
+    public int getY(){return (int)myCenterY;}
+    public void setDirectionX(double x){myDirectionX = x;}
+    public double getDirectionX(){return myDirectionX;}
+    public void setDirectionY(double y){myDirectionY = y;}
+    public double getDirectionY(){return myDirectionY;}
+    public void setPointDirection(int degrees){myPointDirection =degrees;}   
+    public double getPointDirection(){return myPointDirection;}
+    public boolean getEnd(){return end;}
+    public void move ()   //move the floater in the current direction of travel
+  {      
+    //change the x and y coordinates by myDirectionX and myDirectionY       
+    myCenterX += myDirectionX;    
+    myCenterY += myDirectionY;     
+
+    //wrap around screen    
+    if(myCenterX >width)
+    {     
+      boolean end = true;    
+    }    
+    else if (myCenterX<0)
+    {     
+      boolean end = true;    
+    }    
+    if(myCenterY >height)
+    {    
+      boolean end = true;
+    }   
+    else if (myCenterY < 0)
+    {     
+      boolean end = true;    
+    }   
+  }   
+ }
  class Asteroid extends Floater 
  {
-    private int deg, size;
+    private int size;
+
+    
     private int myRot;
     Asteroid()
     {
-      corners = 10;
-      //deg = (360/10)*((PI)/180);
-      size = 20;
+      corners = (int)(Math.random()*17+7);
+      
+      double deg = ((360/corners)*((Math.PI)/180));
+      size = (int)(Math.random()*5+2);
       xCorners = new int[corners];
       yCorners = new int[corners];
-
+      
       for(int i =0; i<corners;i++)
       {
-        xCorners[i] = (int)(Math.random()*101-50);
-        yCorners[i] = (int)(Math.random()*101-50);
+        xCorners[i] = (size)*(int)((Math.cos(i*deg)) * (Math.random()*5+5));
+        yCorners[i] = (size)*(int)((Math.sin(i*deg)) * (Math.random()*5+5));
       }
 
+      //myColor = color((int)(Math.random()*225+1),(int)(Math.random()*225+1),(int)(Math.random()*225+1));
       myColor = color(200,200,200);
       myCenterX = (int)(Math.random()*1000+1);
       myCenterY = (int)(Math.random()*1000+1);
-      myDirectionX = (int)(Math.random()*10 +1);
+      myDirectionX = (int)(Math.random()*7 +1);
       if((Math.random())<.5f)
       {
         myDirectionX = myDirectionX*-1;
       }
-      myDirectionY = (int)(Math.random()*10+1);
+      myDirectionY = (int)(Math.random()*7+1);
       if(Math.random()> .5f)
       {
         myDirectionY = myDirectionY*-1;
       }
       myPointDirection = -40;
 
-      myRot = (int)(Math.random()*8-4); 
-     
+      myRot = (int)(Math.random()*10-6);  
     }
+    public float getRot(){return (float)myRot;}
+    public float getSize(){return (float)size;}
+
     public void setX(double x){myCenterX = x;}
-    public double getX(){return myCenterX;}
+    public int getX(){return (int)myCenterX;}
     public void setY(double y){myCenterY = y;}
-    public double getY(){return myCenterY;}
+    public int getY(){return (int)myCenterY;}
     public void setDirectionX(double x){myDirectionX = x;}
     public double getDirectionX(){return myDirectionX;}
     public void setDirectionY(double y){myDirectionY = y;}
@@ -188,7 +317,8 @@ class Sidus
   public void show()
   {
     stroke(200);
-    fill(200);
+    //fill(200);
+    noFill();
     ellipse(x,y,w,l);
 
   }
@@ -224,15 +354,16 @@ class SpaceShip extends Floater
       myPointDirection = -40;
     }
     public void setX(double x){myCenterX = x;}
-    public double getX(){return myCenterX;}
+    public int getX(){return (int)myCenterX;}
     public void setY(double y){myCenterY = y;}
-    public double getY(){return myCenterY;}
+    public int getY(){return (int)myCenterY;}
     public void setDirectionX(double x){myDirectionX = x;}
     public double getDirectionX(){return myDirectionX;}
     public void setDirectionY(double y){myDirectionY = y;}
     public double getDirectionY(){return myDirectionY;}
     public void setPointDirection(int degrees){myPointDirection =degrees;}   
     public double getPointDirection(){return myPointDirection;}
+
 
 
 }
@@ -247,15 +378,16 @@ abstract class Floater //Do NOT modify the Floater class! Make changes in the Sp
   protected double myDirectionX, myDirectionY; //holds x and y coordinates of the vector for direction of travel   
   protected double myPointDirection; //holds current direction the ship is pointing in degrees    
   abstract public void setX(double x);  
-  abstract public double getX();   
+  abstract public int getX();   
   abstract public void setY(double y);   
-  abstract public double getY();   
+  abstract public int getY();   
   abstract public void setDirectionX(double x);   
   abstract public double getDirectionX();   
   abstract public void setDirectionY(double y);   
   abstract public double getDirectionY();   
   abstract public void setPointDirection(int degrees);   
   abstract public double getPointDirection(); 
+  
 
   //Accelerates the floater in the direction it is pointing (myPointDirection)   
   public void accelerate (double dAmount)   
@@ -295,7 +427,7 @@ abstract class Floater //Do NOT modify the Floater class! Make changes in the Sp
       myCenterY = height;    
     }   
   }   
-  public void show ()  //Draws the floater at the current position  
+  public void show ()  //Draws the floater at the current bbposition  
   {             
     fill(myColor);   
     stroke(myColor);    
