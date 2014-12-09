@@ -84,7 +84,7 @@ public void draw()
    {
       aeneas.rotate(-1);
    }
-   System.out.println(right);
+  
    if (right == true)
    {
       aeneas.rotate(1);
